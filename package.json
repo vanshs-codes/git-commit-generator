@@ -1,0 +1,19 @@
+{
+  "name": "git-commit-generator",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@google/generative-ai": "^0.24.1",
+    "chalk": "^5.5.0",
+    "clipboardy": "^4.0.0",
+    "inquirer": "^12.9.0",
+    "ora": "^8.2.0"
+  }
+}
