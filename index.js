@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+import 'dotenv/config';
 import { exec } from 'child_process';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import chalk from 'chalk';
