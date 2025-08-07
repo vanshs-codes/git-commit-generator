@@ -24,6 +24,44 @@ async function getStagedDiff() {
   });
 }
 
+// async function getCommitMessage(diff) {
+//   const API_KEY = process.env.GEMINI_API_KEY;
+
+//   if (!API_KEY) {
+//     throw new Error('gemini api key is not available');
+//   }
+
+//   const genAI = new GoogleGenerativeAI(API_KEY);
+//   const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+
+//   const prompt = `
+//     Based on the following code changes from a 'git diff --cached' command,
+//     please generate a concise and professional Git commit message.
+
+//     The commit message should follow the Conventional Commits specification.
+//     It should be in the format: <type>(<scope>): <subject>
+//     - <type> should be one of: feat, fix, chore, docs, style, refactor, test.
+//     - <scope> is optional and should describe the part of the codebase affected.
+//     - <subject> should be a short summary of the change, starting with a lowercase letter and without a period at the end.
+
+//     Here are the code changes:
+//     ---
+//     ${diff}
+//     ---
+//   `;
+
+//   const result = await model.generateContent(prompt);
+//   const response = await result.response;
+
+//   const rawText = response.text().trim();
+
+//   console.log(chalk.bgRed.white("\n--- DEBUG: RAW AI OUTPUT ---"));
+//   console.log(rawText);
+//   console.log(chalk.bgRed.white("--- END DEBUG ---"));
+
+//   return rawText.split('\n')[0];
+// }
+
 async function getCommitMessage(diff) {
   const API_KEY = process.env.GEMINI_API_KEY;
 
@@ -36,13 +74,12 @@ async function getCommitMessage(diff) {
 
   const prompt = `
     Based on the following code changes from a 'git diff --cached' command,
-    please generate a concise and professional Git commit message.
-
-    The commit message should follow the Conventional Commits specification.
+    please generate ONLY the git commit message and nothing else.
+    The commit message must follow the Conventional Commits specification.
     It should be in the format: <type>(<scope>): <subject>
     - <type> should be one of: feat, fix, chore, docs, style, refactor, test.
-    - <scope> is optional and should describe the part of the codebase affected.
-    - <subject> should be a short summary of the change, starting with a lowercase letter and without a period at the end.
+    - <scope> is optional.
+    - <subject> should be a short summary, lowercase, without a period at the end.
 
     Here are the code changes:
     ---
@@ -52,7 +89,21 @@ async function getCommitMessage(diff) {
 
   const result = await model.generateContent(prompt);
   const response = await result.response;
-  return response.text().trim();
+  const rawText = response.text().trim();
+
+//   console.log(chalk.bgRed.white("\n--- DEBUG: RAW AI OUTPUT ---"));
+//   console.log(rawText);
+//   console.log(chalk.bgRed.white("--- END DEBUG ---"));
+
+  const commitRegex = /^(feat|fix|chore|docs|style|refactor|test)(\(.*\))?: .*$/m;
+  const match = rawText.match(commitRegex);
+
+  if (match) {
+    return match[0];
+  } else {
+    console.log(chalk.yellow("Warning: AI response did not follow Conventional Commit format. Using first line."));
+    return rawText.split('\n')[0];
+  }
 }
 
 async function main() {
