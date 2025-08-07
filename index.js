@@ -7,6 +7,24 @@ import chalk from 'chalk';
 import ora from 'ora';
 import inquirer from 'inquirer';
 import clipboard from 'clipboardy';
+import fs from 'fs';
+import path from 'path';
+import os from 'os';
+
+function getApiKey() {
+  const configPath = path.join(os.homedir(), '.gcm-config.json');
+  try {
+    if (fs.existsSync(configPath)) {
+      const config = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
+      return config.GEMINI_API_KEY;
+    }
+  } catch (error) {
+    
+  }
+
+  // fallback to .env file
+  return process.env.GEMINI_API_KEY;
+}
 
 async function getStagedDiff() {
   return new Promise((resolve, reject) => {
@@ -63,10 +81,10 @@ async function getStagedDiff() {
 // }
 
 async function getCommitMessage(diff) {
-  const API_KEY = process.env.GEMINI_API_KEY;
+  const API_KEY = getApiKey();
 
   if (!API_KEY) {
-    throw new Error('gemini api key is not available');
+    throw new Error('gemini api key is neither available in .gcm-config.json nor in .env');
   }
 
   const genAI = new GoogleGenerativeAI(API_KEY);

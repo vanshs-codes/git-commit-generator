@@ -9,7 +9,13 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
+  "keywords": [
+    "git",
+    "cli",
+    "ai",
+    "gemini",
+    "commit"
+  ],
   "author": "",
   "license": "ISC",
   "description": "",
